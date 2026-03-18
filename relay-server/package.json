@@ -1,0 +1,24 @@
+{
+  "name": "server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch ./src/index.js",
+    "build": "prisma generate",
+    "start": "node ./src/index.js",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "worker": "node ./src/worker.js",
+    "seed": "node scripts/seed-allowed-keys.mjs",
+    "verify-keys": "node scripts/verify-allowed-keys.mjs",
+    "test": "node --test src/lib/__tests__/expiry.test.js src/__tests__/socket.test.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.0",
+    "prisma": "^5.22.0",
+    "@prisma/client": "^5.22.0",
+    "socket.io": "^4.7.5"
+  }
+}

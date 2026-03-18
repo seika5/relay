@@ -1,0 +1,38 @@
+import express from "express";
+import { createServer } from "http";
+import { Server } from "socket.io";
+import cors from "cors";
+import { PrismaClient } from "@prisma/client";
+import { computeExpiresAt } from "./lib/expiry.js";
+import { blobRouter } from "./routes/blob.js";
+import { keysRouter } from "./routes/keys.js";
+import { registerSocketHandlers } from "./socket.js";
+
+const prisma = new PrismaClient();
+const app = express();
+const httpServer = createServer(app);
+
+// Allow WEB_ORIGIN or any localhost (for dev: 3000, 3001, etc.)
+const corsOrigin = (origin, cb) => {
+  if (!origin) return cb(null, true);
+  if (process.env.WEB_ORIGIN && origin === process.env.WEB_ORIGIN) return cb(null, origin);
+  if (/^https?:\/\/localhost(:\d+)?$/.test(origin)) return cb(null, origin);
+  return cb(null, false);
+};
+app.use(cors({ origin: corsOrigin, credentials: true }));
+app.use(express.json({ limit: "50mb" }));
+
+const io = new Server(httpServer, {
+  cors: { origin: corsOrigin, credentials: true },
+});
+
+app.get("/health", (_, res) => res.status(200).json({ ok: true }));
+app.use("/api/blobs", blobRouter(prisma, computeExpiresAt, io));
+app.use("/api/keys", keysRouter(prisma));
+
+registerSocketHandlers(io, prisma);
+
+const PORT = process.env.PORT || 4000;
+httpServer.listen(PORT, () => {
+  console.log(`Server listening on port ${PORT}`);
+});

@@ -1,0 +1,36 @@
+// Zero-knowledge: no senderId, recipientId, or sentAt.
+// Server stores only encrypted blobs and expiry; addressing by public key hash.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// One-time invitation tokens (admin-only creation). No user identity.
+model Invitation {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+}
+
+// Allowed key hashes (onboarded peers). Only key hash, no identity.
+model AllowedKey {
+  id      String @id @default(cuid())
+  keyHash String @unique
+}
+
+// Encrypted blobs. Addressed by recipient key hash only; no sender or sentAt.
+model Blob {
+  id               String   @id @default(cuid())
+  recipientKeyHash String
+  payload          Bytes
+  expiresAt        DateTime
+
+  @@index([recipientKeyHash])
+  @@index([expiresAt])
+}
