@@ -103,8 +103,9 @@ function ParticipantTile({
 
 /**
  * Inline call view. Discord-style: one tile per video source (camera + screen); name in bottom left. Click to focus.
+ * On mobile, the controls bar at the bottom replaces the sidebar controls (which are hidden).
  */
-export function InlineCallView() {
+export function InlineCallView({ onHangUp }: { onHangUp?: () => void }) {
   const {
     localStream,
     remoteStreams,
@@ -120,6 +121,11 @@ export function InlineCallView() {
     speaking,
     focusedPeerId,
     setFocusedPeerId,
+    setMuted,
+    setDeafened,
+    setCameraOn,
+    setScreenSharing,
+    setCallExpanded,
   } = useCall();
   const { getDisplayName, getMyDisplayName, getContactVolume, setContactVolume } = useIdentity();
   const [volumeMenu, setVolumeMenu] = useState<{ keyHash: string; x: number; y: number } | null>(null);
@@ -278,6 +284,54 @@ export function InlineCallView() {
           ))}
         </div>
       )}
+
+      {/* Call controls — always visible so mobile users are not stuck without controls */}
+      <div
+        className="flex-shrink-0 flex items-center justify-between gap-1.5 pt-2 mt-2 border-t border-[var(--border)]"
+        style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 0.5rem)" }}
+      >
+        {/* Minimize — collapse back to the compact tile / chat view */}
+        <button
+          type="button"
+          onClick={() => setCallExpanded(false)}
+          className="flex-1 py-2 rounded text-sm font-medium bg-[var(--border)] text-[var(--text)] hover:opacity-80"
+          title="Minimize call"
+        >
+          ↙ Chat
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setMuted(!muted)}
+          className={`flex-1 py-2 rounded text-sm font-medium ${muted ? "bg-amber-600/80 text-white" : "bg-[var(--border)] text-[var(--text)]"}`}
+        >
+          {muted ? "Unmute" : "Mute"}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setDeafened(!deafened)}
+          className={`flex-1 py-2 rounded text-sm font-medium ${deafened ? "bg-amber-600/80 text-white" : "bg-[var(--border)] text-[var(--text)]"}`}
+        >
+          {deafened ? "Undeaf" : "Deafen"}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setCameraOn(!cameraOn)}
+          className={`flex-1 py-2 rounded text-sm font-medium ${cameraOn ? "bg-amber-600/80 text-white" : "bg-[var(--border)] text-[var(--text)]"}`}
+        >
+          {cameraOn ? "Cam off" : "Camera"}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => onHangUp?.()}
+          className="flex-1 py-2 rounded text-sm font-medium bg-red-600/80 text-white hover:opacity-90"
+        >
+          Hang up
+        </button>
+      </div>
     </div>
   );
 }

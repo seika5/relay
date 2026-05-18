@@ -12,11 +12,13 @@ const prisma = new PrismaClient();
 const app = express();
 const httpServer = createServer(app);
 
-// Allow WEB_ORIGIN or any localhost (for dev: 3000, 3001, etc.)
+// Allow WEB_ORIGIN, any localhost (for dev: 3000, 3001, etc.), and Capacitor iOS origin.
 const corsOrigin = (origin, cb) => {
   if (!origin) return cb(null, true);
   if (process.env.WEB_ORIGIN && origin === process.env.WEB_ORIGIN) return cb(null, origin);
   if (/^https?:\/\/localhost(:\d+)?$/.test(origin)) return cb(null, origin);
+  // Capacitor iOS app runs at capacitor://localhost
+  if (origin === "capacitor://localhost") return cb(null, origin);
   return cb(null, false);
 };
 app.use(cors({ origin: corsOrigin, credentials: true }));

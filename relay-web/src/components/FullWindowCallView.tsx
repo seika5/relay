@@ -383,7 +383,7 @@ export function FullWindowCallView() {
         })}
       </div>
       <div className="p-2 border-t border-[var(--border)] flex justify-start">
-        <button type="button" onClick={hangUp} className="px-4 py-2 rounded text-sm font-medium bg-red-600/80 text-white">
+        <button type="button" onClick={() => hangUp()} className="px-4 py-2 rounded text-sm font-medium bg-red-600/80 text-white">
           Hang up
         </button>
       </div>

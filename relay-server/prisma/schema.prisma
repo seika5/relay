@@ -10,14 +10,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// One-time invitation tokens (admin-only creation). No user identity.
-model Invitation {
-  id        String   @id @default(cuid())
-  token     String   @unique
-  expiresAt DateTime
-  usedAt    DateTime?
-}
-
 // Allowed key hashes (onboarded peers). Only key hash, no identity.
 model AllowedKey {
   id      String @id @default(cuid())

@@ -20,8 +20,8 @@ export async function getBlobs(recipientKeyHash: string): Promise<{ id: string; 
   return res.json();
 }
 
-export async function deleteBlob(id: string): Promise<void> {
-  const res = await fetch(`${API}/api/blobs/${id}`, { method: "DELETE" });
+export async function deleteBlob(id: string, recipientKeyHash: string): Promise<void> {
+  const res = await fetch(`${API}/api/blobs/${id}?recipientKeyHash=${encodeURIComponent(recipientKeyHash)}`, { method: "DELETE" });
   if (!res.ok) throw new Error(await res.text());
 }
 

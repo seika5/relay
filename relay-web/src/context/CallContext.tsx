@@ -122,7 +122,7 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const s = io(SOCKET_URL, { path: "/socket.io", transports: ["websocket", "polling"] });
     setSocket(s);
-    return () => s.close();
+    return () => { s.close(); };
   }, []);
 
   const drainIceQueue = useCallback(async (pc: RTCPeerConnection, peerId: string) => {
@@ -560,11 +560,12 @@ export function CallProvider({ children }: { children: React.ReactNode }) {
             let audioIdx = 0;
             let videoIdx = 0;
             for (const tr of transceivers) {
-              if (tr.mediaType === "audio" && audioIdx < audioTracks.length) {
+              const kind = tr.receiver.track?.kind ?? tr.sender.track?.kind;
+              if (kind === "audio" && audioIdx < audioTracks.length) {
                 tr.direction = "sendrecv";
                 tr.sender.replaceTrack(audioTracks[audioIdx]);
                 audioIdx++;
-              } else if (tr.mediaType === "video" && videoIdx < videoTracks.length) {
+              } else if (kind === "video" && videoIdx < videoTracks.length) {
                 tr.direction = "sendrecv";
                 tr.sender.replaceTrack(videoTracks[videoIdx]);
                 videoIdx++;
